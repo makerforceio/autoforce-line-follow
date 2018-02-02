@@ -24,19 +24,22 @@ class image_converter:
 	def get_latestcv2Image():
 		return self.cv_image
 
-# video_capture = cv2.VideoCapture(0)
-# video_capture.set(3, 160)
-# video_capture.set(4, 120)
+def main(args):
+	ic = image_converter()
+	rospy.init_node('line_follower', anonymous=True)
 
-while(True):
-    ret, frame = video_capture.read()
-    crop_img = frame[60:120, 0:160]
-    gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray,(5,5),0)
-    ret,thresh = cv2.threshold(blur,60,255,cv2.THRESH_BINARY_INV)
-    _,contours,hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
+	rate = rospy.Rate(10)
+	
+	while rospy.if_shutdown():
+		frame = ic.get_latestcv2Image()
+		crop_img = frame[60:120, 0:160]
+		gray = cv2.cvtColor(crop_img, cv1.COLOR_BGR2GRAY)
+		blur = cv2.GaussianBlur(gray, (5,5), 0)
+		ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
 
-    if len(contours) > 0:
+		_, contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX,NONE)
+
+		 if len(contours) > 0:
         c = max(contours, key=cv2.contourArea)
         M = cv2.moments(c)
 
@@ -64,3 +67,11 @@ while(True):
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+	rate.sleep()
+
+if __name__ == '__main__':
+	try:
+		main()
+	except rospy.ROSInterruptException:
+		pass
