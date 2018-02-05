@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import Array
+from std_msgs.msg import Int16MultiArray
 import RPi.GPIO as GPIO
 
 def talker():
-    pub = rospy.Publisher('obstacleavoid', Array, queue_size=10)
+    pub = rospy.Publisher('obstacleavoid', Int16MultiArray, queue_size=10)
     rospy.init_node('obstacle', anonymous=True)
     rate = rospy.Rate(60)
     
@@ -17,8 +17,9 @@ def talker():
     while not rospy.is_shutdown():
         for i in range(len(sensor)):
             output[i] = GPIO.input(sensor[i])
-            rospy.loginfo(output)
-            pub.publish(output)
+            publish = Int16MultiArray(data=output)
+            rospy.loginfo(publish)
+            pub.publish(publish)
             rate.sleep()
         
 if __name__ == '__main__':
