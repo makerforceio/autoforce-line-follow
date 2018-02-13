@@ -25,7 +25,7 @@ class ImageConverter:
 		return self.cv_image
 
 def main(args):
-	ic = Imageonverter()
+	ic = ImageConverter()
 	rospy.init_node('line_follower', anonymous=True)
 
 	rate = rospy.Rate(10)
