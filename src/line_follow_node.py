@@ -9,7 +9,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-class image_converter:
+class ImageConverter:
 	def __init__(self):
 		self.bridge = CvBridge()
 		self.image_sub = rospy.Subscriber("image_topic", Image, self.callback)
@@ -25,50 +25,49 @@ class image_converter:
 		return self.cv_image
 
 def main(args):
-	ic = image_converter()
+	ic = Imageonverter()
 	rospy.init_node('line_follower', anonymous=True)
 
 	rate = rospy.Rate(10)
+    
+    c_width = 1/20
 	
-	while rospy.if_shutdown():
+	while not rospy.is_shutdown():
 		frame = ic.get_latestcv2Image()
-		crop_img = frame[60:120, 0:160]
-		gray = cv2.cvtColor(crop_img, cv1.COLOR_BGR2GRAY)
-		blur = cv2.GaussianBlur(gray, (5,5), 0)
-		ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
+        size = frame.size()
+        gray = cv2.cvtColor(frame, cv1.COLOR_BGR2GRAY)
+		mask = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY_INV)[1]
+        mask = cv2.GaussianBlur(mask, (5,5), 0)
+        
+		contours = cv2.findContours(mask, 1, cv2.CHAIN_APPROX,NONE)[1]
+        
+        if len(contours) > 0:
+                c = max(contours, key=cv2.contourArea)
+                M = cv2.moments(c)
 
-		_, contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX,NONE)
+                cx = int(M['m10']/M['m00'])
+                cy = int(M['m01']/M['m00'])
 
-		 if len(contours) > 0:
-        c = max(contours, key=cv2.contourArea)
-        M = cv2.moments(c)
+                cv2.line(frame,(cx,0),(cx,size[1]),(255,0,0),3)
+                
+                cv2.drawContours(frame, contours, -1, (0,255,0), 1)
 
-        cx = int(M['m10']/M['m00'])
-        cy = int(M['m01']/M['m00'])
+                if cx >= size[0] + c_width:
+                    print "Turn Left!"
+                else if cx <= size[0] - c_width:
+                    print "Turn Right"
+                else:
+                    print "On Track"
 
-        cv2.line(crop_img,(cx,0),(cx,720),(255,0,0),1)
-        cv2.line(crop_img,(0,cy),(1280,cy),(255,0,0),1)
+        else:
+                print "I don't see the line"
 
-        cv2.drawContours(crop_img, contours, -1, (0,255,0), 1)
+                cv2.imshow('frame', frame)
 
-        if cx >= 120:
-            print "Turn Left!"
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-        if cx < 120 and cx > 50:
-            print "On Track!"
-
-        if cx <= 50:
-            print "Turn Right"
-
-    else:
-        print "I don't see the line"
-
-    cv2.imshow('frame',crop_img)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-	rate.sleep()
+        rate.sleep()
 
 if __name__ == '__main__':
 	try:
