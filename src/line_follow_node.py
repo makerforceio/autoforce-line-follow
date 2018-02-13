@@ -42,30 +42,30 @@ def main(args):
 		contours = cv2.findContours(mask, 1, cv2.CHAIN_APPROX,NONE)[1]
         
         if len(contours) > 0:
-                c = max(contours, key=cv2.contourArea)
-                M = cv2.moments(c)
+            c = max(contours, key=cv2.contourArea)
+            M = cv2.moments(c)
 
-                cx = int(M['m10']/M['m00'])
-                cy = int(M['m01']/M['m00'])
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
 
-                cv2.line(frame,(cx,0),(cx,size[1]),(255,0,0),3)
-                
-                cv2.drawContours(frame, contours, -1, (0,255,0), 1)
+            cv2.line(frame,(cx,0),(cx,size[1]),(255,0,0),3)
+            
+            cv2.drawContours(frame, contours, -1, (0,255,0), 1)
 
-                if cx >= size[0] + c_width:
-                    print "Turn Left!"
-                else if cx <= size[0] - c_width:
-                    print "Turn Right"
-                else:
-                    print "On Track"
+            if cx >= size[0] + c_width:
+                print "Turn Left!"
+            else if cx <= size[0] - c_width:
+                print "Turn Right"
+            else:
+                print "On Track"
 
         else:
-                print "I don't see the line"
+            print "I don't see the line"
 
-                cv2.imshow('frame', frame)
+            cv2.imshow('frame', frame)
 
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
         rate.sleep()
 
