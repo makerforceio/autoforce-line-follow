@@ -43,6 +43,12 @@ def main(args):
         
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
+            
+            rect = cv2.minAreaRect(cnt)
+            angle = rect[2]
+            
+            print "Rotate {}".format(angle)
+            
             M = cv2.moments(c)
 
             cx = int(M['m10']/M['m00'])
