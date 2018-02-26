@@ -10,15 +10,14 @@ while (True):
     frame = cap.read()[1]
 
     out = line_follow(frame)
-    if out is None:
-        continue
-    frame, (angle, lean) = out
-    print(angle)
-    print(lean)
+    if out is not None:
+        frame, (angle, lean) = out
+        print("{}, {}".format(angle, lean))
     
     cv.imshow('frame', frame)
     
     if cv.waitKey(1) & 0xFF == ord('q'):
                 break
 
-    
+cap.release()
+cv.destroyAllWindows()
