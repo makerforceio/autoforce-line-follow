@@ -8,10 +8,10 @@ video_capture.set(4, 120)
 while(True):
 
     # Capture the frames
-    ret, frame = video_capture.read()
+    ret, crop_img = video_capture.read()
 
     # Crop the image
-    crop_img = frame[60:120, 0:160]
+    #crop_img = frame[60:120, 0:160]
 
     # Convert to grayscale
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)

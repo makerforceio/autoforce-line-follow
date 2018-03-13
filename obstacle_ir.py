@@ -17,10 +17,11 @@ def talker():
     while not rospy.is_shutdown():
         for i in range(len(sensor)):
             output[i] = GPIO.input(sensor[i])
-            publish = Int16MultiArray(data=output)
-            rospy.loginfo(publish)
-            pub.publish(publish)
-            rate.sleep()
+        publish = Int16MultiArray(data=output)
+        rospy.loginfo(publish)
+        pub.publish(publish)
+        rate.sleep()
+        
         
 if __name__ == '__main__':
     try:
